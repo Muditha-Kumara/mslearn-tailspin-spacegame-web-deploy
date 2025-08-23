@@ -87,9 +87,23 @@ stages:
               echo "Package path: $(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip"
               ls -la $(Pipeline.Workspace)/drop/$(buildConfiguration)/
             displayName: 'Debug deployment variables and files'
+          - task: AzureCLI@2
+            displayName: 'Verify App Service access'
+            inputs:
+              azureSubscription: 'Resource Manager - Tailspin - Space Game'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                echo "Testing Azure CLI access..."
+                az account show
+                echo "Checking App Service..."
+                az webapp show --name 'tailspin-space-game-web-83' --resource-group $(az webapp list --query "[?name=='tailspin-space-game-web-83'].resourceGroup" -o tsv) || echo "App Service not found or no access"
           - task: AzureWebApp@1
             displayName: 'Azure App Service Deploy: website'
             inputs:
               azureSubscription: 'Resource Manager - Tailspin - Space Game'
               appName: 'tailspin-space-game-web-83'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+              deploymentMethod: 'zipDeploy'
+              enableCustomDeployment: true
+              deploymentType: 'zipDeploy'
