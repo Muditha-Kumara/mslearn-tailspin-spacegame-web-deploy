@@ -96,14 +96,13 @@ stages:
               inlineScript: |
                 echo "Testing Azure CLI access..."
                 az account show
-                echo "Checking App Service..."
-                az webapp show --name 'tailspin-space-game-web-83' --resource-group $(az webapp list --query "[?name=='tailspin-space-game-web-83'].resourceGroup" -o tsv) || echo "App Service not found or no access"
+                echo "Checking App Service existence and access..."
+                az webapp list --query "[?name=='tailspin-space-game-web-83']" -o table
           - task: AzureWebApp@1
             displayName: 'Azure App Service Deploy: website'
             inputs:
               azureSubscription: 'Resource Manager - Tailspin - Space Game'
+              appType: 'webApp'
               appName: 'tailspin-space-game-web-83'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
-              deploymentMethod: 'zipDeploy'
-              enableCustomDeployment: true
-              deploymentType: 'zipDeploy'
+              deploymentMethod: 'runFromPackage'
