@@ -81,9 +81,15 @@ stages:
           steps:
           - download: current
             artifact: drop
+          - script: |
+              echo "WebAppName variable: $(WebAppName)"
+              echo "Build Configuration: $(buildConfiguration)"
+              echo "Package path: $(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip"
+              ls -la $(Pipeline.Workspace)/drop/$(buildConfiguration)/
+            displayName: 'Debug deployment variables and files'
           - task: AzureWebApp@1
             displayName: 'Azure App Service Deploy: website'
             inputs:
               azureSubscription: 'Resource Manager - Tailspin - Space Game'
-              appName: '$(WebAppName)'
+              appName: 'tailspin-space-game-web-83'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
